@@ -1,0 +1,26 @@
+{
+  "name": "mhgrab",
+  "version": "1.0.0",
+  "description": "utlitis for get and modification data recive site MH\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[Dfrom \u001b[2~site MH",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/XrustS/MHGrab.git"
+  },
+  "keywords": [
+    "grabber",
+    "request"
+  ],
+  "author": "AK",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/XrustS/MHGrab/issues"
+  },
+  "homepage": "https://github.com/XrustS/MHGrab#readme"
+}
