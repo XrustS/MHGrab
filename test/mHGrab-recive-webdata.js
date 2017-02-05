@@ -1,51 +1,28 @@
 const expect = require('chai').expect;
+const MHGrab = require('../mhgrab');
+
+var grab;
 
 describe('MHGrab' , function () {
-    describe('correct formating input data', function () {
-        it('should return false if method getRequest arguments empty', function () {
-            let grab = new MHGrab();
-            let result = grab.getRequest();
+    describe('getRequest arguments', function () {
+        beforeEach( function() {
+            grab = new MHGrab();
+        })
+        // Tests
 
-            expect(result).to.be.false;
+        it('should return false if method getRequest arguments empty', function () {
+            expect(grab.getRequest()).to.be.false;
         });
         it('should return false if first argument is not Object', function () {
-            let grab = new MHGrab();
-            let result ='';
-
-            result = grab.getRequest('str');
-
-            expect(result).to.be.false;
+            expect(grab.getRequest('str')).to.be.false;
+            expect(grab.getRequest(1)).to.be.false;
+            expect(grab.getRequest([])).to.be.false;
         });
         it('should return false if second argument is unset or not Array', function () {
-            let grab = new MHGrab();
-            let result ='';
-
-            result = grab.getRequest({},'str');
-
-            expect(result).to.be.false;
+            expect(grab.getRequest({},'str')).to.be.false;
+        });
+        it('should return Promise if first argumen object options, second argument Array ', function () {
+            expect(grab.getRequest({},[])).to.be.instanceof(Promise)
         });
     });
 });
-
-function MHGrab(){
-    let salf = this;
-
-    salf.getRequest = function(options, loginParam){
-        if(arguments.length != 0 || !isObject(options) || !Array.isArray(loginParam))
-            return false;
-        return true;
-    }
-    function isObject(obj) {
-        if( typeof(obj) === 'object' ){
-            let result = obj.toString()
-                    .replace(']','')
-                    .split(' ')
-                    .pop();
-
-            if ( result === 'Object' )
-            return true;
-            }
-            return false;
-    }
-    return salf;
-}
