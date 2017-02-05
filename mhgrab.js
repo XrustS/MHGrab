@@ -1,26 +1,38 @@
+var request = require('request');
+require('request-debug')(request);
+request = request.defaults({jar: true});
+
 function MHGrab(){
-    let salf = this;
+  let salf = this;
 
-    salf.getRequest = function(options, loginParam){
-        if( isObject(options) && Array.isArray(loginParam)) {
-            return new Promise((resolve, reject) => {
+  salf.getRequest = function(options, loginParam){
+    let login = loginParam ? loginParam : [];
 
-            })
-        } else return false;
+    if( isObject(options) && Array.isArray(login)) {
+      console.log('Options: %s', JSON.stringify(options));
 
+      return new Promise((resolve, reject) => {
+        request(options, (err, response) => {
+          if(err)
+          return reject(err);
+          resolve(response);
+        })
+      })
+    } else return false;
+
+  }
+  function isObject(obj) {
+    if( typeof(obj) === 'object' ){
+      let result = obj.toString()
+      .replace(']','')
+      .split(' ')
+      .pop();
+
+      if ( result === 'Object' )
+      return true;
     }
-    function isObject(obj) {
-        if( typeof(obj) === 'object' ){
-            let result = obj.toString()
-                    .replace(']','')
-                    .split(' ')
-                    .pop();
-
-            if ( result === 'Object' )
-            return true;
-            }
-            return false;
-    }
-    return salf;
+    return false;
+  }
+  return salf;
 }
 module.exports = MHGrab;
