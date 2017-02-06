@@ -1,5 +1,5 @@
 # Data files
-data.json
+data/*.json
 
 
 # Logs
