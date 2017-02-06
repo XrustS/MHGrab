@@ -1,15 +1,17 @@
 var request = require('request');
-require('request-debug')(request);
+// require('request-debug')(request);
 request = request.defaults({jar: true});
 
 function MHGrab(){
   let salf = this;
 
+  salf.debug = false;
+
   salf.getRequest = function(options, loginParam){
     let login = loginParam ? loginParam : [];
 
     if( isObject(options) && Array.isArray(login)) {
-      console.log('Options: %s', JSON.stringify(options));
+      if(salf.debug) console.log('Options: %s', JSON.stringify(options));
 
       return new Promise((resolve, reject) => {
         request(options, (err, response) => {

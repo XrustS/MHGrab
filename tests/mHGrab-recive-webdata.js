@@ -22,7 +22,7 @@ describe('MHGrab' , function () {
             expect(grab.getRequest({},'str')).to.be.false;
         });
         it('Promise if first argumen object options, second argument Array ', function () {
-            expect(grab.getRequest({},[])).to.be.instanceof(Promise)
+            expect(grab.getRequest({uri:'https://ya.ru/'},[])).to.be.instanceof(Promise)
         });
         -it('html data if otions = {url: "https://ya.ru"} second argument is null', function() {
           let opt = {
@@ -30,13 +30,10 @@ describe('MHGrab' , function () {
             method: 'GET'
           };
 
-          grab.getRequest(opt)
-          .resolve((response) => {
-            let data = response.body;
-
-            expect(data).to.match(/\<title\>Яндекс\<\/title\>/);
+          grab.getRequest(opt).then(resp => {
+            expect(resp.data).to.match(/\<title\>Яндекс\<\/title\>/);
           })
-          // .catch(error => console.log(error))
+          .catch(error => console.log(error))
 
         });
     });
