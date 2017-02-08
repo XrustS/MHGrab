@@ -14,32 +14,41 @@ function MHGrab(){
 
         if( isObject(template) && Array.isArray(login)) {
             if(login.length == 2)
-            tempalte = inject(login).to(template);
+                template = inject(login).to(template);
 
-            debug(`Options:  ${JSON.stringify(options)}`);
+            debug(`Options:  ${JSON.stringify(template)}`);
 
             return new Promise((resolve, reject) => {
-                request(options, (err, response) => {
+                request(template, (err, response) => {
                     if(err)
                     return reject(err);
 
                     resolve(response);
                 })
             })
-            // .getMony = function() {
-            //     this.resolve(response => {
-            //         return +fetch(data, '.old-cp-dengi>p>em');
-            //     })
-            // }
 
-    } else return false;
+        } else return false;
+    }
+    salf.getMony = function(htmlPage) {
+        let result = fetch(htmlPage, '.old-cp-dengi > p > em');
+
+        //result = clearSpace(result);
+        debug(`RESULT FETCH: --- ${result}`);
+        return result
+    }
+
+function clearSpace(htmlPage) {
+    let str = '';
+
+    str = htmlPage;
+    return str.replace(/\t+|\n+/g," " );
 }
 
 function fetch(data, patt) {
     let $ = cheerio.load(data),
     pattern = patt ? patt: '';
 
-    return  $.text();
+    return  +$(pattern).text();
 }
 function inject(loginParam) {
     return {

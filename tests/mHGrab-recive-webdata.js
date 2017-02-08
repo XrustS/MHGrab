@@ -1,4 +1,5 @@
 const expect = require('chai').expect;
+const assert = require('chai').assert;
 const MHGrab = require('../mhgrab');
 
 var grab, opt, login;
@@ -28,16 +29,18 @@ describe('MHGrab' , function () {
         it('Promise if first argument object {uri:"https://ya.ru/"}, second argument Array ', function () {
             expect(grab.getRequest({uri:'https://ya.ru/'},[])).to.be.instanceof(Promise)
         })
-        it('html data if otions = {url: "https://ya.ru"} second argument is null', function() {
+        it('html data if options = {url: "https://ya.ru"} second argument is null', function() {
           let options = {
             uri: 'https://ya.ru/',
             method: 'GET'
           };
 
-          grab.getRequest(options).then(resp => {
-            expect(resp.data).to.match(/\<title\>Яндекс\<\/title\>/);
-          })
-          .catch(console.log)
+        return  grab.getRequest(options).then(resp => {
+
+            expect(resp.body).to.match(/\<title\>Яндекс\<\/title\>/);
+
+            })
+            .catch(assert.fail);
         })
     })
     describe('.getRequest content MH', function () {
@@ -45,13 +48,23 @@ describe('MHGrab' , function () {
             let opt = require('../data/data');
             let login = require('../data/login');
 
-            grab.getRequest(opt, login['gm']).then(resp => {
-              expect(resp.data).to.match(/medica#2/);
-            })
-            .catch(console.log)
+            return    grab.getRequest(opt, login['gm']).then(resp => {
+                  expect(resp.body).to.match(/medica#2/);
+                })
+                .catch(assert.fail)
         })
-        it('should return current bild, when call function getMony', function () {
-            expect(grab.getRequest(opt, login['gm']).getMony()).to.be.a('number');
+        it('should return current score, when call function getMony', function () {
+            let opt = require('../data/data');
+            let login = require('../data/login');
+
+            return  grab.getRequest(opt, login['gm']).then(
+                        resp => {
+                            let score = grab.getMony(resp.body);
+
+                            // console.log(`RESULT getMony: --------- ${score}`);
+                            return expect(score).to.be.a('number');
+
+                        })
         });
     })
 })
