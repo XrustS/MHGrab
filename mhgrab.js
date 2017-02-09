@@ -16,30 +16,26 @@ function MHGrab(){
 
         if( isObject(template) && Array.isArray(login)) {
             if(login.length == 2)
-                template = inject(login).to(template);
+            template = inject(login).to(template);
 
             debug(`OPTIONS: ---  ${JSON.stringify(template)}`);
 
             return new Promise((resolve, reject) => {
                 request(template, (err, response, body) => {
 
-                if(!err && response.statusCode == '200'){
-                    //  console.log(`HEADERS:${JSON.stringify(response.headers)}`);
-
-                     switch (response.headers['content-type']) {
-                         case 'text/html; charset=windows-1251':
-                             salf.htmlData = iconv.decode(body,'win1251');
-                             break;
-                         default:
+                    if(!err && response.statusCode == '200'){
+                        switch (response.headers['content-type']) {
+                            case 'text/html; charset=windows-1251':
+                            salf.htmlData = iconv.decode(body,'win1251');
+                            break;
+                            default:
                             salf.htmlData = body;
-                     }
-                    salf.htmlData = clearSpace(salf.htmlData);
-                    salf.htmlData = clearScripts(salf.htmlData);
+                        }
+                        salf._clearPage();
+                        debug(`TRANSFORM BODY clearSpase: --- ${salf.htmlData}`);
+                        return resolve(salf.htmlData);
 
-                    debug(`TRANSFORM BODY clearSpase: --- ${salf.htmlData}`);
-                    return resolve(salf.htmlData);
-
-                } else return reject(err);
+                    } else return reject(err);
 
                 })
             })
@@ -58,51 +54,44 @@ function MHGrab(){
         debug(`getFETCH: --- Pattern --${patt} \n Result -- ${result}`);
         return result;
     }
-function clearScripts(htmlPage) {
-    let str = '';
+    salf._clearPage = function() {
+        salf.htmlData = salf.htmlData
+                            .replace(/\<script\b.*?\<\/script\>/g, "")
+                            .replace(/\t+|\n+/g, " " );
+        return salf;
+    }
 
-    str = htmlPage;
-    return str.replace(/\<script\b.*?\<\/script\>/g, "");
-}
+    function fetch(data, patt) {
+        let $ = cheerio.load(data),
+        pattern = patt ? patt: '';
 
-function clearSpace(htmlPage) {
-    let str = '';
-
-    str = htmlPage;
-    return str.replace(/\t+|\n+/g, " " );
-}
-
-function fetch(data, patt) {
-    let $ = cheerio.load(data),
-    pattern = patt ? patt: '';
-
-    return  $(pattern).text();
-}
-function inject(loginParam) {
-    return {
-        to: function(template){
-            template.form.login = loginParam[0];
-            template.form.password = loginParam[1];
-            return template;
+        return  $(pattern).text();
+    }
+    function inject(loginParam) {
+        return {
+            to: function(template){
+                template.form.login = loginParam[0];
+                template.form.password = loginParam[1];
+                return template;
+            }
         }
     }
-}
-function debug(mes){
-    if(salf.debug)
-    console.log(mes);
-}
-function isObject(obj) {
-    if( typeof(obj) === 'object' ){
-        let result = obj.toString()
-        .replace(']','')
-        .split(' ')
-        .pop();
-
-        if ( result === 'Object' )
-        return true;
+    function debug(mes){
+        if(salf.debug)
+        console.log(mes);
     }
-    return false;
-}
-return salf;
+    function isObject(obj) {
+        if( typeof(obj) === 'object' ){
+            let result = obj.toString()
+            .replace(']','')
+            .split(' ')
+            .pop();
+
+            if ( result === 'Object' )
+            return true;
+        }
+        return false;
+    }
+    return salf;
 }
 module.exports = MHGrab;
