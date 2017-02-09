@@ -5,14 +5,16 @@ const MHGrab = require('../mhgrab');
 var grab, opt, login;
 
 describe('MHGrab' , function () {
+    beforeEach( function() {
+        opt = require('../data/data');
+        login = require('../data/login');
+
+        grab = new MHGrab();
+
+
+    })
     describe('.getRequest arguments, should return', function () {
-        beforeEach( function() {
-            opt = require('../data/data');
-            login = require('../data/login');
 
-            grab = new MHGrab();
-
-        })
         // Tests
 
         it('false if method getRequest arguments empty', function () {
@@ -37,34 +39,34 @@ describe('MHGrab' , function () {
 
         return  grab.getRequest(options).then(resp => {
 
-            expect(resp.body).to.match(/\<title\>Яндекс\<\/title\>/);
+                expect(resp).to.match(/\<title\>Яндекс\<\/title\>/);
 
-            })
-            .catch(assert.fail);
+                })
+                .catch(assert.fail);
         })
     })
     describe('.getRequest content MH', function () {
         it('should retrurn home page site MH, when first argument options request, second login couple [login, password]', function () {
-            let opt = require('../data/data');
-            let login = require('../data/login');
-
             return    grab.getRequest(opt, login['gm']).then(resp => {
-                  expect(resp.body).to.match(/medica#2/);
+                  expect(resp).to.match(/medica#2/);
                 })
                 .catch(assert.fail)
         })
         it('should return current score, when call function getMony', function () {
-            let opt = require('../data/data');
-            let login = require('../data/login');
+            return grab.getRequest(opt, login['gm']).then(
+                        resp => {
+                            let score = grab.getMony(resp);
 
+                            expect(Number(score)).to.be.a('number');
+                        }).catch(assert.fail)
+        })
+        it('should return cirylic simbols to utf8', function () {
             return  grab.getRequest(opt, login['gm']).then(
                         resp => {
-                            let score = grab.getMony(resp.body);
+                            let resiveData = grab.getFetchData(resp, 'h1.heading-service');
 
-                            // console.log(`RESULT getMony: --------- ${score}`);
-                            return expect(score).to.be.a('number');
-
-                        })
+                            expect(resiveData).to.be.eql('Услуги');
+                        }).catch(assert.fail)
         });
     })
 })

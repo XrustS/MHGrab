@@ -2,11 +2,13 @@ var request = require('request');
 // require('request-debug')(request);
 request = request.defaults({jar: true});
 const cheerio = require('cheerio');
+const iconv = require('iconv-lite');
 
 function MHGrab(){
-    let salf = this;
+    var salf = this;
 
     salf.debug = false;
+    salf.htmlData = '';
 
     salf.getRequest = function(options, loginParam){
         let login = loginParam ? loginParam : [],
@@ -16,14 +18,29 @@ function MHGrab(){
             if(login.length == 2)
                 template = inject(login).to(template);
 
-            debug(`Options:  ${JSON.stringify(template)}`);
+            debug(`OPTIONS: ---  ${JSON.stringify(template)}`);
 
             return new Promise((resolve, reject) => {
-                request(template, (err, response) => {
-                    if(err)
-                    return reject(err);
+                request(template, (err, response, body) => {
 
-                    resolve(response);
+                if(!err && response.statusCode == '200'){
+                    //  console.log(`HEADERS:${JSON.stringify(response.headers)}`);
+
+                     switch (response.headers['content-type']) {
+                         case 'text/html; charset=windows-1251':
+                             salf.htmlData = iconv.decode(body,'win1251');
+                             break;
+                         default:
+                            salf.htmlData = body;
+                     }
+                    salf.htmlData = clearSpace(salf.htmlData);
+                    salf.htmlData = clearScripts(salf.htmlData);
+
+                    debug(`TRANSFORM BODY clearSpase: --- ${salf.htmlData}`);
+                    return resolve(salf.htmlData);
+
+                } else return reject(err);
+
                 })
             })
 
@@ -32,23 +49,34 @@ function MHGrab(){
     salf.getMony = function(htmlPage) {
         let result = fetch(htmlPage, '.old-cp-dengi > p > em');
 
-        //result = clearSpace(result);
         debug(`RESULT FETCH: --- ${result}`);
         return result
     }
+    salf.getFetchData = function(htmlPage, patt){
+        let result = fetch(htmlPage, patt);
+
+        debug(`getFETCH: --- Pattern --${patt} \n Result -- ${result}`);
+        return result;
+    }
+function clearScripts(htmlPage) {
+    let str = '';
+
+    str = htmlPage;
+    return str.replace(/\<script\b.*?\<\/script\>/g, "");
+}
 
 function clearSpace(htmlPage) {
     let str = '';
 
     str = htmlPage;
-    return str.replace(/\t+|\n+/g," " );
+    return str.replace(/\t+|\n+/g, " " );
 }
 
 function fetch(data, patt) {
     let $ = cheerio.load(data),
     pattern = patt ? patt: '';
 
-    return  +$(pattern).text();
+    return  $(pattern).text();
 }
 function inject(loginParam) {
     return {
