@@ -2,7 +2,7 @@ const expect = require('chai').expect;
 const assert = require('chai').assert;
 const MHGrab = require('../mhgrab');
 
-var grab, opt, login;
+let grab, opt, login;
 
 describe('MHGrab' , function () {
     beforeEach( function() {
@@ -10,8 +10,6 @@ describe('MHGrab' , function () {
         login = require('../data/login');
 
         grab = new MHGrab();
-
-
     })
     describe('.getRequest arguments, should return', function () {
 
@@ -29,22 +27,23 @@ describe('MHGrab' , function () {
             expect(grab.getRequest({},'str')).to.be.false;
         })
     })
-    describe('.getRequest content MH', function () {
+    describe('.getRequest content', function () {
         it('Promise if first argument object {uri:"https://ya.ru/"}', function () {
             expect(grab.getRequest({uri:'https://ya.ru/'})).to.be.instanceof(Promise)
         })
         it('html page ya.ru if url: "https://ya.ru"', function() {
-          let options = {
-            uri: 'https://ya.ru/',
-            method: 'GET'
-          };
 
-        return  grab.getRequest(options).then(resp => {
+              let options = {
+                uri: 'https://ya.ru/',
+                method: 'GET'
+              };
 
-                expect(resp).to.match(/\<title\>Яндекс\<\/title\>/);
+            return  grab.getRequest(options).then(resp => {
 
-                })
-                .catch(assert.fail);
+                    expect(resp).to.match(/\<title\>Яндекс\<\/title\>/);
+
+                    })
+                    .catch(assert.fail);
         })
         it('should retrurn home page site MH, when first argument options connection, second login couple [login, password]', function () {
             return    grab.getRequest(opt, login['gm']).then(resp => {

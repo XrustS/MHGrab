@@ -31,7 +31,7 @@ function MHGrab(){
                             default:
                             salf.htmlData = body;
                         }
-                        salf._clearPage();
+                        // salf._clearPage();
                         debug(`TRANSFORM BODY clearSpase: --- ${salf.htmlData}`);
                         return resolve(salf.htmlData);
 
