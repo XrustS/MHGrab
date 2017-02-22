@@ -31,7 +31,7 @@ function MHGrab(){
                             default:
                             salf.htmlData = body;
                         }
-                        // salf._clearPage();
+                        salf._clearPage();
                         debug(`TRANSFORM BODY clearSpase: --- ${salf.htmlData}`);
                         return resolve(salf.htmlData);
 
@@ -41,6 +41,10 @@ function MHGrab(){
             })
 
         } else return false;
+    }
+    salf.getSearch = function(regExp){
+        // возвращает резултат удовлетворяющий регулярному выражению
+        return salf.htmlData.match(regExp);
     }
     salf.getMony = function(htmlPage) {
         let result = fetch(htmlPage, '.old-cp-dengi > p > em');
@@ -52,11 +56,11 @@ function MHGrab(){
         let result = fetch(htmlPage, patt);
 
         debug(`getFETCH: --- Pattern --${patt} \n Result -- ${result}`);
-        return result;
+        return result || false;
     }
     salf._clearPage = function() {
         salf.htmlData = salf.htmlData
-                            .replace(/\<script\b.*?\<\/script\>/g, "")
+                            // .replace(/\<script\b.*?\<\/script\>/g, "")
                             .replace(/\t+|\n+/g, " " );
         return salf;
     }

@@ -46,12 +46,14 @@ describe('MHGrab' , function () {
                     .catch(assert.fail);
         })
         it('should retrurn home page site MH, when first argument options connection, second login couple [login, password]', function () {
+            this.timeout(5000); // timeout is increased
             return    grab.getRequest(opt, login['gm']).then(resp => {
                   expect(resp).to.match(/medica#2/);
                 })
                 .catch(assert.fail)
         })
         it('should return current score, when call function getMony', function () {
+            this.timeout(5000); // timeout is increased
             return grab.getRequest(opt, login['gm']).then(
                         resp => {
                             let score = grab.getMony(resp);
@@ -60,12 +62,23 @@ describe('MHGrab' , function () {
                         }).catch(assert.fail)
         })
         it('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
+            this.timeout(5000); // timeout is increased
             return  grab.getRequest(opt, login['gm']).then(
                         resp => {
-                            let resiveData = grab.getFetchData(resp, 'h1.heading-service');
+                            let resiveData = grab.getFetchData(resp, 'h1.title.heading-mess');
 
-                            expect(resiveData).to.be.eql('Услуги');
-                        }).catch(assert.fail)
+                            expect(resiveData).to.be.eql('Услуги с ежемесячной абонентской платой Срочные сообщения');
+                        })
+        })
+        xit('should return "csrf_token" when call function getCSRFKey', function () {
+            return grab.getRequest(optins, login)
+                    .then(
+                        resp => {
+                            let result = grab.getCSRFKey();
+
+                            expect(result).to.be.eql('aeDAZR22osVVTEMtW3mnuXwmuUFugBEZ');
+                    })
+                    .catch(assert.fail)
         });
     })
 })
