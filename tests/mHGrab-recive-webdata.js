@@ -12,7 +12,7 @@ describe('MHGrab' , function () {
 
         grab = new MHGrab();
     })
-    describe('.getRequest arguments, should return', function () {
+    xdescribe('.getRequest arguments, should return', function () {
 
         // Tests
 
@@ -29,10 +29,10 @@ describe('MHGrab' , function () {
         })
     })
     describe('.getRequest content', function () {
-        it('Promise if first argument object {uri:"https://ya.ru/"}', function () {
+        xit('Promise if first argument object {uri:"https://ya.ru/"}', function () {
             expect(grab.getRequest({uri:'https://ya.ru/'})).to.be.instanceof(Promise)
         })
-        it('html page ya.ru if url: "https://ya.ru"', function() {
+        xit('html page ya.ru if url: "https://ya.ru"', function() {
 
               let options = {
                 uri: 'https://ya.ru/',
@@ -46,14 +46,14 @@ describe('MHGrab' , function () {
                     })
                     .catch(assert.fail);
         })
-        it('should retrurn home page site MH, when first argument options connection, second login couple [login, password]', function () {
+        xit('should retrurn home page site MH, when first argument options connection, second login couple [login, password]', function () {
             this.timeout(5000); // timeout is increased
             return    grab.getRequest(opt, login['gm']).then(resp => {
                   expect(resp).to.match(/medica#2/);
                 })
                 .catch(assert.fail)
         })
-        it('should return current score, when call function getMony', function () {
+        xit('should return current score, when call function getMony', function () {
             this.timeout(5000); // timeout is increased
             return grab.getRequest(opt, login['gm']).then(
                         resp => {
@@ -62,7 +62,7 @@ describe('MHGrab' , function () {
                             expect(Number(score)).to.be.a('number');
                         }).catch(assert.fail)
         })
-        it('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
+        xit('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
             this.timeout(5000); // timeout is increased
             return  grab.getRequest(opt, login['gm']).then(
                         resp => {
@@ -72,28 +72,14 @@ describe('MHGrab' , function () {
                         })
         })
         it('should return "csrf_token" when call function getCSRFKey', function () {
-            const fs = require('fs');
-            const http = require('http');
+            const WebServer = require('../libs/webserver');
             const options = {
                 url: 'http://localhost:4000',
                 port: 4000,
-                method: 'GET'
+                method: 'GET',
+                file: `${__dirname}/../data/test.html`
             };
-            const html = fs.createReadStream('./data/test.html');
-            const server = http.createServer((req, res) =>{
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'text/plain');
-                html.pipe(res);
-            }).listen(options.port||3333, () => console.log('Server is start!'));
-
-            (function countDown(counter) {
-                if(counter > 0)
-                return setTimeout(countDown, 1000, counter--);
-
-                console.log(counter);
-                server.close(() => console.log('Server closed!'));
-            })(10);
-
+            let server = new WebServer(options, 10);
 
             return grab.getRequest(options)
                     .then(
