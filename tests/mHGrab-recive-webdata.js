@@ -2,6 +2,7 @@ const expect = require('chai').expect;
 const assert = require('chai').assert;
 const MHGrab = require('../mhgrab');
 
+
 let grab, opt, login;
 
 describe('MHGrab' , function () {
@@ -56,7 +57,7 @@ describe('MHGrab' , function () {
             this.timeout(5000); // timeout is increased
             return grab.getRequest(opt, login['gm']).then(
                         resp => {
-                            let score = grab.getMony(resp);
+                            let score = grab.getMony();
 
                             expect(Number(score)).to.be.a('number');
                         }).catch(assert.fail)
@@ -65,20 +66,42 @@ describe('MHGrab' , function () {
             this.timeout(5000); // timeout is increased
             return  grab.getRequest(opt, login['gm']).then(
                         resp => {
-                            let resiveData = grab.getFetchData(resp, 'h1.title.heading-mess');
+                            let resiveData = grab.getFetchData('h1.heading-service');
 
-                            expect(resiveData).to.be.eql('Услуги с ежемесячной абонентской платой Срочные сообщения');
+                            expect(resiveData).to.match(/Услуги/);
                         })
         })
-        xit('should return "csrf_token" when call function getCSRFKey', function () {
-            return grab.getRequest(optins, login)
+        it('should return "csrf_token" when call function getCSRFKey', function () {
+            const fs = require('fs');
+            const http = require('http');
+            const options = {
+                url: 'http://localhost:4000',
+                port: 4000,
+                method: 'GET'
+            };
+            const html = fs.createReadStream('./data/test.html');
+            const server = http.createServer((req, res) =>{
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'text/plain');
+                html.pipe(res);
+            }).listen(options.port||3333, () => console.log('Server is start!'));
+
+            (function countDown(counter) {
+                if(counter > 0)
+                return setTimeout(countDown, 1000, counter--);
+
+                console.log(counter);
+                server.close(() => console.log('Server closed!'));
+            })(10);
+
+
+            return grab.getRequest(options)
                     .then(
                         resp => {
                             let result = grab.getCSRFKey();
 
                             expect(result).to.be.eql('aeDAZR22osVVTEMtW3mnuXwmuUFugBEZ');
                     })
-                    .catch(assert.fail)
         });
     })
 })

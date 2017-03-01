@@ -8,9 +8,16 @@ let grab = new MHGrab();
 for (let company in login) {
     grab
         .getRequest(options, login[company])
-        .then((resp) => {            
+        .then((resp) => {
             let score = grab.getMony(resp);
 
             console.log(`${company} --- ${score}`);
         })
 }
+// Modification options request
+
+// grab
+//     .getRequest(options, login['ms'])
+//     .then( resp => {
+//         grab.getFetchData(resp,'script')
+//     })

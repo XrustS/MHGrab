@@ -11,14 +11,14 @@ function MHGrab(){
     salf.htmlData = '';
 
     salf.getRequest = function(options, loginParam){
-        let login = loginParam ? loginParam : [],
+        let login = loginParam || [],
         template = options;
 
         if( isObject(template) && Array.isArray(login)) {
             if(login.length == 2)
             template = inject(login).to(template);
 
-            debug(`OPTIONS: ---  ${JSON.stringify(template)}`);
+            debug(`OPTIONS: --- ${JSON.stringify(template)}`);
 
             return new Promise((resolve, reject) => {
                 request(template, (err, response, body) => {
@@ -42,25 +42,27 @@ function MHGrab(){
 
         } else return false;
     }
+    salf.getCSRFKey = function () {
+        return salf.htmlData.match(/csrf_token = \"(.*?)\";/i)[1] || false;
+    }
     salf.getSearch = function(regExp){
         // возвращает резултат удовлетворяющий регулярному выражению
         return salf.htmlData.match(regExp);
     }
-    salf.getMony = function(htmlPage) {
-        let result = fetch(htmlPage, '.old-cp-dengi > p > em');
+    salf.getMony = function() {
+        let result = fetch(salf.htmlData, '.old-cp-dengi > p > em');
 
         debug(`RESULT FETCH: --- ${result}`);
         return result
     }
-    salf.getFetchData = function(htmlPage, patt){
-        let result = fetch(htmlPage, patt);
+    salf.getFetchData = function(patt){
+        let result = fetch(salf.htmlData, patt);
 
         debug(`getFETCH: --- Pattern --${patt} \n Result -- ${result}`);
         return result || false;
     }
     salf._clearPage = function() {
         salf.htmlData = salf.htmlData
-                            // .replace(/\<script\b.*?\<\/script\>/g, "")
                             .replace(/\t+|\n+/g, " " );
         return salf;
     }
