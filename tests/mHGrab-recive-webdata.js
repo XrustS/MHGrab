@@ -12,7 +12,7 @@ describe('MHGrab' , function () {
 
         grab = new MHGrab();
     })
-    xdescribe('.getRequest arguments, should return', function () {
+    describe('.getRequest arguments, should return', function () {
 
         // Tests
 
@@ -29,10 +29,10 @@ describe('MHGrab' , function () {
         })
     })
     describe('.getRequest content', function () {
-        xit('Promise if first argument object {uri:"https://ya.ru/"}', function () {
+        it('Promise if first argument object {uri:"https://ya.ru/"}', function () {
             expect(grab.getRequest({uri:'https://ya.ru/'})).to.be.instanceof(Promise)
         })
-        xit('html page ya.ru if url: "https://ya.ru"', function() {
+        it('html page ya.ru if url: "https://ya.ru"', function() {
 
               let options = {
                 uri: 'https://ya.ru/',
@@ -46,14 +46,14 @@ describe('MHGrab' , function () {
                     })
                     .catch(assert.fail);
         })
-        xit('should retrurn home page site MH, when first argument options connection, second login couple [login, password]', function () {
+        it('should retrurn home page site MH, when first argument options connection, second login couple [login, password]', function () {
             this.timeout(5000); // timeout is increased
             return    grab.getRequest(opt, login['gm']).then(resp => {
                   expect(resp).to.match(/medica#2/);
                 })
                 .catch(assert.fail)
         })
-        xit('should return current score, when call function getMony', function () {
+        it('should return current score, when call function getMony', function () {
             this.timeout(5000); // timeout is increased
             return grab.getRequest(opt, login['gm']).then(
                         resp => {
@@ -62,7 +62,7 @@ describe('MHGrab' , function () {
                             expect(Number(score)).to.be.a('number');
                         }).catch(assert.fail)
         })
-        xit('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
+        it('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
             this.timeout(5000); // timeout is increased
             return  grab.getRequest(opt, login['gm']).then(
                         resp => {
