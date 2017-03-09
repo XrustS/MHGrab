@@ -88,6 +88,26 @@ describe('MHGrab' , function () {
 
                             expect(result).to.be.eql('aeDAZR22osVVTEMtW3mnuXwmuUFugBEZ');
                     })
+        })
+        it('should return id score user, when call function getIdScope', function () {
+            const WebServer = require('../libs/webserver');
+            const options = {
+                url: 'http://localhost:4001',
+                port: 4001,
+                method: 'GET',
+                file: `${__dirname}/../data/mainPage.html`
+            };
+            let server = new WebServer(options, 10);
+
+            return grab.getRequest(options)
+                    .then(
+                        resp => {
+                            let result = grab.getIdScope();
+
+                            expect(result).to.be.a("Number");
+                            expect(result).to.be.eql(429470);
+                        }
+                    )
         });
     })
 })

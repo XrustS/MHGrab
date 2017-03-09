@@ -42,6 +42,11 @@ function MHGrab(){
 
         } else return false;
     }
+    salf.getIdScope = function () {
+        let result = fetch(salf.htmlData, ".servicePropsBlock");
+
+        return Number(result.match(/\b\d+/)[0]) || false;
+    }
     salf.getCSRFKey = function () {
         return salf.htmlData.match(/csrf_token = \"(.*?)\";/i)[1] || false;
     }
