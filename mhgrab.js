@@ -1,3 +1,4 @@
+'use strict';
 var request = require('request');
 // require('request-debug')(request);
 request = request.defaults({jar: true});

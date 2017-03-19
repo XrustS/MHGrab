@@ -1,7 +1,7 @@
 'use strict';
-const cheerio = require('cheerio');
+// const cheerio = require('cheerio');
 const fs = require('fs');
-const Webserver = require('./libs/webserver');
+// const Webserver = require('./libs/webserver');
 // function runRead(fileName) {
 //     return new Promise((resolve, reject) => {
 //         fs.readFile(fileName, 'utf8',(err, data)=>{
@@ -17,9 +17,20 @@ const Webserver = require('./libs/webserver');
 //             console.log(data.match(/csrf_token = \"(.*?)\";/i)[1]);
 //     })
 //     .catch(console.log);
-const options = {
-    port: 4000,
-    file: `${__dirname}/data/test.html`
-};
+//**** Test local web server**
+// const options = {
+//     port: 4000,
+//     file: `${__dirname}/data/test.html`
+// };
+//
+// let server = new Webserver(options, 10);
+//********************************
+const MHGrab = require('mhgrab');
+const grab = new MHGrab();
 
-let server = new Webserver(options, 10);
+grab.getRequest(options, log['ms'])
+    .then(
+        resp => {
+
+        }
+    )
