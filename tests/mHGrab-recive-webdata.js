@@ -34,80 +34,80 @@ describe('MHGrab' , function () {
         })
         it('html page ya.ru if url: "https://ya.ru"', function() {
 
-              let options = {
+            let options = {
                 uri: 'https://ya.ru/',
                 method: 'GET'
-              };
+            };
 
             return  grab.getRequest(options).then(resp => {
 
-                    expect(resp).to.match(/\<title\>Яндекс\<\/title\>/);
+                expect(resp).to.match(/\<title\>Яндекс\<\/title\>/);
 
-                    })
-                    .catch(assert.fail);
+            })
+            .catch(assert.fail);
         })
         it('should retrurn home page site MH, when first argument options connection, second login couple [login, password]', function () {
             this.timeout(5000); // timeout is increased
             return    grab.getRequest(opt, login['gm']).then(resp => {
-                  expect(resp).to.match(/medica#2/);
-                })
-                .catch(assert.fail)
+                expect(resp).to.match(/medica#2/);
+            })
+            .catch(assert.fail)
         })
         it('should return current score, when call function getMony', function () {
             this.timeout(5000); // timeout is increased
             return grab.getRequest(opt, login['gm']).then(
-                        resp => {
-                            let score = grab.getMony();
+                resp => {
+                    let score = grab.getMony();
 
-                            expect(Number(score)).to.be.a('number');
-                        }).catch(assert.fail)
-        })
-        it('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
-            this.timeout(5000); // timeout is increased
-            return  grab.getRequest(opt, login['gm']).then(
-                        resp => {
-                            let resiveData = grab.getFetchData('h1.heading-service');
+                    expect(Number(score)).to.be.a('number');
+                }).catch(assert.fail)
+            })
+            it('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
+                this.timeout(5000); // timeout is increased
+                return  grab.getRequest(opt, login['gm']).then(
+                    resp => {
+                        let resiveData = grab.getFetchData('h1.heading-service');
 
-                            expect(resiveData).to.match(/Услуги/);
-                        })
-        })
-        it('should return "csrf_token" when call function getCSRFKey', function () {
-            const WebServer = require('../libs/webserver');
-            const options = {
-                url: 'http://localhost:4000',
-                port: 4000,
-                method: 'GET',
-                file: `${__dirname}/../data/test.html`
-            };
-            let server = new WebServer(options, 10);
+                        expect(resiveData).to.match(/Услуги/);
+                    })
+                })
+                it('should return "csrf_token" when call function getCSRFKey', function () {
+                    const WebServer = require('../libs/webserver');
+                    const options = {
+                        url: 'http://localhost:4000',
+                        port: 4000,
+                        method: 'GET',
+                        file: `${__dirname}/../data/test.html`
+                    };
+                    let server = new WebServer(options, 10);
 
-            return grab.getRequest(options)
+                    return grab.getRequest(options)
                     .then(
                         resp => {
                             let result = grab.getCSRFKey();
 
                             expect(result).to.be.eql('aeDAZR22osVVTEMtW3mnuXwmuUFugBEZ');
+                        })
                     })
-        })
-        it('should return id score user, when call function getIdScope', function () {
-            const WebServer = require('../libs/webserver');
-            const options = {
-                url: 'http://localhost:4001',
-                port: 4001,
-                method: 'GET',
-                file: `${__dirname}/../data/mainPage.html`
-            };
-            let server = new WebServer(options, 10);
+                    it('should return id score user, when call function getIdScope', function () {
+                        const WebServer = require('../libs/webserver');
+                        const options = {
+                            url: 'http://localhost:4001',
+                            port: 4001,
+                            method: 'GET',
+                            file: `${__dirname}/../data/mainPage.html`
+                        };
+                        let server = new WebServer(options, 10);
 
-            return grab.getRequest(options)
-                    .then(
-                        resp => {
-                            let result = grab.getIdScope();
+                        return grab.getRequest(options)
+                        .then(
+                            resp => {
+                                let result = grab.getIdScope();
 
-                            expect(result).to.be.a("Number");
-                            expect(result).to.be.eql(429470);
-                        }
-                    )
-        });
-    })
-})
+                                expect(result).to.be.a("Number");
+                                expect(result).to.be.eql(429470);
+                            }
+                        )
+                    });
+                })
+            })

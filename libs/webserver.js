@@ -16,7 +16,7 @@ module.exports = function webServer(options, timer) {
                 res.end();
             }
         });
-    }).listen(options.port||3333, () => console.log('Server is start!'));
+    }).listen(options.port||3333, () => 'Server is start!');
 
     server.setTimeout(timer/2*1000);
 

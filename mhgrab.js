@@ -22,23 +22,42 @@ function MHGrab(){
             debug(`OPTIONS: --- ${JSON.stringify(template)}`);
 
             return new Promise((resolve, reject) => {
-                request(template, (err, response, body) => {
-
-                    if(!err && response.statusCode == '200'){
-                        switch (response.headers['content-type']) {
-                            case 'text/html; charset=windows-1251':
-                            salf.htmlData = iconv.decode(body,'win1251');
-                            break;
-                            default:
-                            salf.htmlData = body;
-                        }
-                        salf._clearPage();
-                        debug(`TRANSFORM BODY clearSpase: --- ${salf.htmlData}`);
-                        return resolve(salf.htmlData);
-
-                    } else return reject(err);
-
+                // request(template, (err, response, body) => {
+                //
+                //     if(!err && response.statusCode == '200'){
+                //         switch (response.headers['content-type']) {
+                //             case 'text/html; charset=windows-1251':
+                //             salf.htmlData = iconv.decode(body,'win1251');
+                //             break;
+                //             default:
+                //             salf.htmlData = body;
+                //         }
+                //         salf._clearPage();
+                //         debug(`TRANSFORM BODY clearSpase: --- ${salf.htmlData}`);
+                //         return resolve(salf.htmlData);
+                //
+                //     } else return reject(err);
+                //
+                // })
+                // Использование потока для кодирования входных данных
+                function getData (err, res){
+                    if(err)
+                    return reject(err);
+                    return resolve(salf.htmlData = res)
+                }
+                let local = 'utf-8';
+                request(template)
+                .on('response', (resp) => {
+                    switch(resp.headers['content-type']){
+                        case 'text/html; charset=windows-1251':
+                        local = 'win1251';
+                        break;
+                        default: local = 'utf-8';
+                    }
+                    resp.pipe(iconv.decodeStream(local))
+                    .collect(getData)
                 })
+                .on('error', err=>console.log(err))
             })
 
         } else return false;
@@ -52,7 +71,7 @@ function MHGrab(){
         return salf.htmlData.match(/csrf_token = \"(.*?)\";/i)[1] || false;
     }
     salf.getSearch = function(regExp){
-        // возвращает резултат удовлетворяющий регулярному выражению
+        // возвращает результат удовлетворяющий регулярному выражению
         return salf.htmlData.match(regExp);
     }
     salf.getMony = function() {
@@ -69,7 +88,7 @@ function MHGrab(){
     }
     salf._clearPage = function() {
         salf.htmlData = salf.htmlData
-                            .replace(/\t+|\n+/g, " " );
+        .replace(/\t+|\n+/g, " " );
         return salf;
     }
 
