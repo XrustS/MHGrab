@@ -7,9 +7,7 @@ const iconv = require('iconv-lite');
 
 function MHGrab(){
     var salf = this;
-
     salf.debug = false;
-    salf.htmlData = '';
 
     salf.getRequest = function(options, loginParam){
         let login = loginParam || [],
@@ -22,44 +20,26 @@ function MHGrab(){
             debug(`OPTIONS: --- ${JSON.stringify(template)}`);
 
             return new Promise((resolve, reject) => {
-                // request(template, (err, response, body) => {
-                //
-                //     if(!err && response.statusCode == '200'){
-                //         switch (response.headers['content-type']) {
-                //             case 'text/html; charset=windows-1251':
-                //             salf.htmlData = iconv.decode(body,'win1251');
-                //             break;
-                //             default:
-                //             salf.htmlData = body;
-                //         }
-                //         salf._clearPage();
-                //         debug(`TRANSFORM BODY clearSpase: --- ${salf.htmlData}`);
-                //         return resolve(salf.htmlData);
-                //
-                //     } else return reject(err);
-                //
-                // })
                 // Использование потока для кодирования входных данных
-                function getData (err, res){
-                    if(err)
-                    return reject(err);
-                    return resolve(salf.htmlData = res)
-                }
-                let local = 'utf-8';
+                let local = 'utf8',
+                chunks = [];
                 request(template)
-                .on('response', (resp) => {
-                    switch(resp.headers['content-type']){
-                        case 'text/html; charset=windows-1251':
-                        local = 'win1251';
-                        break;
-                        default: local = 'utf-8';
-                    }
-                    resp.pipe(iconv.decodeStream(local))
-                    .collect(getData)
-                })
-                .on('error', err=>console.log(err))
+                    .on('response', (resp) => {
+                        switch(resp.headers['content-type']){
+                            case 'text/html; charset=windows-1251':
+                            local = 'win1251';
+                            break;
+                            default: local = 'utf8';
+                        }
+                    })
+                    .on('data', chunk=>chunks.push(chunk))
+                    .on('end', () => {
+                        let res = local =='win1251' ?
+                        iconv.decode(Buffer.concat(chunks), 'win1251') :
+                        Buffer.concat(chunks);
+                        resolve(salf.htmlData = res)
+                    })
             })
-
         } else return false;
     }
     salf.getIdScope = function () {
