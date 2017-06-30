@@ -34,8 +34,8 @@ function MHGrab(){
                     })
                     .on('data', chunk=>chunks.push(chunk))
                     .on('end', () => {
-                        let res = local =='win1251' ?
-                        iconv.decode(Buffer.concat(chunks), 'win1251') :
+                        let res = local !=='utf8' ?
+                        iconv.decode(Buffer.concat(chunks), local) :
                         Buffer.concat(chunks);
                         resolve(salf.htmlData = res)
                     })
