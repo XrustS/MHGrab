@@ -37,6 +37,7 @@ function MHGrab(){
                         let res = local !=='utf8' ?
                         iconv.decode(Buffer.concat(chunks), local) :
                         Buffer.concat(chunks);
+                        debug(`----- BODY BEGIN -----\n\t${res ? "content" : "empty"}\n------- BODY END ------`);
                         resolve(salf.htmlData = res)
                     })
             })
@@ -44,8 +45,8 @@ function MHGrab(){
     }
     salf.getIdScope = function () {
         let result = fetch(salf.htmlData, ".servicePropsBlock");
-
-        return Number(result.match(/\b\d+/)[0]) || false;
+        
+        return Number(result.match(/\b(\d+)/)[0]) || false;
     }
     salf.getCSRFKey = function () {
         return salf.htmlData.match(/csrf_token = \"(.*?)\";/i)[1] || false;
@@ -54,7 +55,7 @@ function MHGrab(){
         // возвращает результат удовлетворяющий регулярному выражению
         return salf.htmlData.match(regExp);
     }
-    salf.getMony = function() {
+    salf.getMony = function () {
         let result = fetch(salf.htmlData, '.old-cp-dengi > p > em');
 
         debug(`RESULT FETCH: --- ${result}`);
@@ -66,10 +67,26 @@ function MHGrab(){
         debug(`getFETCH: --- Pattern --${patt} \n Result -- ${result}`);
         return result || false;
     }
-    salf._clearPage = function() {
+    salf._clearPage = function () {
         salf.htmlData = salf.htmlData
         .replace(/\t+|\n+/g, " " );
         return salf;
+    }
+    salf.getScore = function () {
+      // GET(url/pay)->POST({options: setOptions, url: 'bill/pay_rur'})->
+      // ParsceLink()
+      let opt = {
+        method: 'GET',
+        url: 'https://cp.masterhost.ru/pay',
+        followAllRedirects: true,
+        encoding: null
+      }
+
+      salf.getRequest(opt).
+      then(data=>{
+
+      })
+
     }
 
     function fetch(data, patt) {

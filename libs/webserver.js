@@ -37,4 +37,5 @@ module.exports = function webServer(options, timer) {
     server.on('data', () => {
         console.log('get Data!');
     })
+    return server;
 }
