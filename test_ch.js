@@ -1,4 +1,12 @@
 'use strict';
-let str = "derfs 456";
+const MHGrab = require('./mhgrab');
+const options = require('./data/data');
+const login = require('./data/login');
 
-console.log(str.match(/\d+/ig)[0]);
+let grab = new MHGrab();
+
+grab
+  .getRequest(options, login['gm'])
+  .then(() => {
+    grab.getScore('10001');
+  })

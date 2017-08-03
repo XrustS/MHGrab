@@ -4,6 +4,9 @@ var request = require('request');
 request = request.defaults({jar: true});
 const cheerio = require('cheerio');
 const iconv = require('iconv-lite');
+const fs = require('fs');
+// const url = require('url');
+// const jsPDF = require('node-jspdf');
 
 function MHGrab(){
     var salf = this;
@@ -37,16 +40,16 @@ function MHGrab(){
                         let res = local !=='utf8' ?
                         iconv.decode(Buffer.concat(chunks), local) :
                         Buffer.concat(chunks);
-                        debug(`----- BODY BEGIN -----\n\t${res ? "content" : "empty"}\n------- BODY END ------`);
-                        resolve(salf.htmlData = res)
+                        debug(`----- BODY BEGIN -----\n\t${res ? `content\n\tlocal - ${local}` : "empty"}\n------- BODY END ------`);
+                        resolve(salf.htmlData = res.toString())
                     })
             })
         } else return false;
     }
     salf.getIdScope = function () {
-        let result = fetch(salf.htmlData, ".servicePropsBlock");
-        
-        return Number(result.match(/\b(\d+)/)[0]) || false;
+        let result = fetch(salf.htmlData, "input[name^='lbill_id']", true);
+
+        return Number(result.val());
     }
     salf.getCSRFKey = function () {
         return salf.htmlData.match(/csrf_token = \"(.*?)\";/i)[1] || false;
@@ -72,28 +75,52 @@ function MHGrab(){
         .replace(/\t+|\n+/g, " " );
         return salf;
     }
-    salf.getScore = function () {
+    salf.getScore = function (score) {
       // GET(url/pay)->POST({options: setOptions, url: 'bill/pay_rur'})->
       // ParsceLink()
       let opt = {
-        method: 'GET',
+        method: 'POST',
         url: 'https://cp.masterhost.ru/pay',
         followAllRedirects: true,
-        encoding: null
-      }
+        encoding: null,
+        form: {
+          sum: "11567",
+          lbill_id: '', //уникален для каждой организации
+          csrf_token: ''
+        }
+      };
+      // let doc = new jsPDF();
 
       salf.getRequest(opt).
-      then(data=>{
+      then(() => {
+        opt.form.lbill_id = salf.getIdScope();
+        opt.form.csrf_token = salf.getCSRFKey();
+        opt.url = 'https://cp.masterhost.ru/bill/pay_rur';
+        return salf.getRequest(opt)
+      })
+      .then(() => {
+        let link = fetch(salf.htmlData, "a:contains('Счет для юридических лиц')", true).attr("href");
 
+        salf.getRequest({
+          url: link,
+          followAllRedirects: true,
+          encoding: null
+        })
+        .then(() => {
+          // save result to file HTML
+          fs.writeFile('outHTML.html', self.htmlData);
+          // doc.text(fetch(salf.htmlData, "body", true), 15, 15);
+          // doc.save(__dirname+'/firstScore.pdf');
+        })
       })
 
     }
 
-    function fetch(data, patt) {
+    function fetch(data, patt, fullResult=false) {
         let $ = cheerio.load(data),
         pattern = patt ? patt: '';
 
-        return  $(pattern).text();
+        return  fullResult == true ? $(pattern) : $(pattern).text();
     }
     function inject(loginParam) {
         return {

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 
-module.exports = function webServer(options, timer) {
+module.exports = function webServer(options, timer=100) {
     let time = timer;
 
     const server = http.createServer((req, res) => {
@@ -28,14 +28,5 @@ module.exports = function webServer(options, timer) {
             server.close()
         }
     }, 1000);
-    server.on('close', () => {
-        console.log('Event closed emitted!');
-    });
-    server.on('finish', () => {
-        console.log('It`s finish!')
-    });
-    server.on('data', () => {
-        console.log('get Data!');
-    })
     return server;
 }

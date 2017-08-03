@@ -12,11 +12,11 @@ describe('Parse content page, test whit using local webserver', function() {
     },
     serverSettings = {
         port: 4000,
-        file: `${__dirname}/../data/mainPage.html`
+        file: `${__dirname}/../data/pay_rur.html`
     }, server, grab;
   beforeEach( () => {
     grab = new MHGrab();
-    server = new WebServer(serverSettings, 100);
+    server = new WebServer(serverSettings);
   })
   afterEach(() => {
     server.close();
@@ -25,19 +25,23 @@ describe('Parse content page, test whit using local webserver', function() {
       return grab.getRequest(options)
       .then(
           resp => {
-              let result = grab.getCSRFKey();
+            let result = grab.getCSRFKey();
 
-              expect(result).to.be.eql('DT2ZnxB0gDwk9a3hyd362XHuA2DglkBh');
-          })
+            expect(result).to.be.eql('x5UHoKXAxl0HMxCD0QIl5mp3vMX0vi2F');
+      })
   })
   it('should return id score user, when call function getIdScope', function () {
       return grab.getRequest(options)
       .then(
           resp => {
-              let result = grab.getIdScope();
+            let result = grab.getIdScope();
 
-              expect(result).to.be.a("Number");
-              expect(result).to.be.eql(429470);
-          })
+            expect(result).to.be.a("Number");
+            expect(result).to.be.eql(383965);
+      })
   })
+  // it('getScore should save file in dirictory ', function(){
+  //
+  //   })
+
 })
