@@ -40,8 +40,4 @@ describe('Parse content page, test whit using local webserver', function() {
             expect(result).to.be.eql(383965);
       })
   })
-  // it('getScore should save file in dirictory ', function(){
-  //
-  //   })
-
 })

@@ -44,7 +44,6 @@ describe('MHGrab' , function () {
         return    grab.getRequest(opt, login['gm']).then(resp => {
             expect(resp).to.match(/medica#2/);
         })
-        .catch(assert.fail)
     })
     it('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
         return  grab.getRequest(opt, login['gm']).then(
@@ -58,7 +57,16 @@ describe('MHGrab' , function () {
                 let score = grab.getMony();
 
                 expect(Number(score)).to.be.a('number');
-            }).catch(assert.fail)
+            })
       })
   })
+  describe.only('private function _saveToFile', function(){
+    it('should return false when data is empty', function(){
+      let data = '1', fileName = 'test.txt';
+
+      expect(grab._saveToFile()).to.be.false;
+      expect(grab._saveToFile(data)).to.be.false;
+      expect(grab._saveToFile(null ,fileName)).to.be.false;
+      })    
+    })
 })

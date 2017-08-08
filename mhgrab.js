@@ -115,6 +115,16 @@ function MHGrab(){
       })
 
     }
+    salf._saveToFile = function(data, fileName) {
+      if(!data || !fileName){
+          return false;
+          }
+      return fs.writeFile(fileName, data, (err) => {
+        if(err)
+          return console.log(`Error write file! \n ${err}`);
+        return true;
+      })
+    }
 
     function fetch(data, patt, fullResult=false) {
         let $ = cheerio.load(data),
