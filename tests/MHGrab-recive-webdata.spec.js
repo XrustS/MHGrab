@@ -1,6 +1,7 @@
 const expect = require('chai').expect;
 const assert = require('chai').assert;
 const MHGrab = require('../mhgrab');
+const fs = require('fs');
 
 
 let grab, opt, login;
@@ -60,13 +61,41 @@ describe('MHGrab' , function () {
             })
       })
   })
-  describe.only('private function _saveToFile', function(){
-    it('should return false when data is empty', function(){
-      let data = '1', fileName = 'test.txt';
+  describe('private function _saveToFile', function(){
+      let fileName, data;
 
-      expect(grab._saveToFile()).to.be.false;
-      expect(grab._saveToFile(data)).to.be.false;
-      expect(grab._saveToFile(null ,fileName)).to.be.false;
-      })    
+      beforeEach(() => {
+        [fileName, data] = [`${__dirname}/test1.log`, 'Hellow node.js!'];
+      })
+      afterEach(() => {
+          fs.access(fileName, (err) => {
+              if (err) {
+                  if (err.code === 'ENOENT') {
+                  //   console.error('myfile does not exist');
+                    return;
+                  }
+              } else {
+                  fs.unlink(fileName, (err) => {
+                      if(err){
+                          throw err;
+                      }
+                  })
+              }
+          })
+      })
+      it('should return false when data is empty', function(){
+          expect(grab._saveToFile()).to.be.false;
+          expect(grab._saveToFile(fileName)).to.be.false;
+          expect(grab._saveToFile(null, data)).to.be.false;
+      })
+      it('should return Promise when data save to file', () => {
+            return expect(grab._saveToFile(fileName, data)).to.be.instanceof(Promise);
+      });
+      it('should return "successfully save file %fileName%"', () => {
+          return grab._saveToFile(fileName, data)
+            .then(resp => {
+                return expect(resp).to.be.eql(`successfully save file ${fileName}`);
+            })
+      });
     })
 })

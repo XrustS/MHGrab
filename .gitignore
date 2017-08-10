@@ -1,6 +1,7 @@
 # Data files
 data/*.json
 data/*.html
+saveFiles
 
 
 # Logs

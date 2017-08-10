@@ -115,14 +115,16 @@ function MHGrab(){
       })
 
     }
-    salf._saveToFile = function(data, fileName) {
+    salf._saveToFile = function(fileName, data) {
       if(!data || !fileName){
           return false;
           }
-      return fs.writeFile(fileName, data, (err) => {
-        if(err)
-          return console.log(`Error write file! \n ${err}`);
-        return true;
+      return new Promise((resolve, reject) => {
+          fs.writeFile(fileName, data, (err) => {
+            if(err)
+              return reject(`Error write file! \n ${err}`);
+            resolve(`successfully save file ${fileName}`);
+          })
       })
     }
 

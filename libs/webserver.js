@@ -4,7 +4,7 @@ const http = require('http');
 module.exports = function webServer(options, timer=100) {
     let time = timer;
 
-    const server = http.createServer((req, res) => {
+    const server = http.createServer((req, res) => {         
         fs.readFile(options.file, "binary", (err, data) => {
             if(err){
                 res.writeHead(500, {"Content-Type": "text/plain"})
