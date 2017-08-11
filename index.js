@@ -6,25 +6,34 @@ const { URL } = require('url');
 
 let grab = new MHGrab();
 let url = new URL(options.url);
-if(process.argv.length < 3) {
-    for (let company in login) {
+let company={};
+switch (process.argv[2]) {
+    case '--show-curr':
+        company[process.argv[3]] = login[process.argv[3]];
+        getCurrStat(company);
+        break;
+    case '--get-score':
+        company = login[process.argv[3]];
+        let score = process.argv[3] ? process.argv[3] : 11670;
+        getScore(score);
+        break;
+    default:
+        getCurrStat();
+}
+function getCurrStat(company) {
+    let loginArr = {};
+
+    if(company){
+        loginArr = company;
+    } else {
+        loginArr = login;
+    }
+    for (let item in loginArr) {
         grab
-        .getRequest(options, login[company])
+        .getRequest(options, loginArr[item])
         .then(() => {
             let currentSum = grab.getMony();
-
-            grab.getRequest({
-                url: 'https://cp.masterhost.ru/pay',
-                followAllRedirects: true,
-                encoding: null,
-                method: 'POST'
-            }).then(() => {
-                let score = grab.getIdScope();
-
-                console.log(`${company} --- ${currentSum} --- ${score}`);
-            })
+            console.log(`${item} --- ${currentSum} `);            
         })
     }
-} else {
-    console.log(`We don\`t support arguments!`);
 }
