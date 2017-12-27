@@ -2,7 +2,6 @@
 data/*.json
 data/*.html
 saveFiles
-test_ch.js
 
 
 # Logs
