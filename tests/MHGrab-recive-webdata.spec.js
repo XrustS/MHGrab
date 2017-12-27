@@ -7,7 +7,7 @@ const fs = require('fs');
 let grab, opt, login;
 
 describe('MHGrab' , function () {
-  this.timeout(5000);
+  this.timeout(6000);
   beforeEach( () => {
       opt = require('../data/data');
       login = require('../data/login');
@@ -42,8 +42,8 @@ describe('MHGrab' , function () {
     })
   describe('.getRequest content', function () {
     it('should retrurn home page site MH, when first argument options connection, second login couple [login, password]', function () {
-        return    grab.getRequest(opt, login['gm']).then(resp => {
-            expect(resp).to.match(/medica#2/);
+        return    grab.getRequest(opt, login['de']).then(resp => {
+            expect(resp).to.match(/delante_new/);
         })
     })
     it('should return cirylic simbols to utf8, site data in encoding windows-1251', function () {
