@@ -6,7 +6,7 @@ const cheerio = require('cheerio');
 const iconv = require('iconv-lite');
 const fs = require('fs');
 // const url = require('url');
-// const jsPDF = require('node-jspdf');
+const pdf = require('html-pdf');
 
 function MHGrab(){
     var salf = this;
@@ -27,22 +27,22 @@ function MHGrab(){
                 let local = 'utf8',
                 chunks = [];
                 request(template)
-                    .on('response', (resp) => {
-                        switch(resp.headers['content-type']){
-                            case 'text/html; charset=windows-1251':
-                            local = 'win1251';
-                            break;
-                            default: local = 'utf8';
-                        }
-                    })
-                    .on('data', chunk=>chunks.push(chunk))
-                    .on('end', () => {
-                        let res = local !=='utf8' ?
-                        iconv.decode(Buffer.concat(chunks), local) :
-                        Buffer.concat(chunks);
-                        debug(`----- BODY BEGIN -----\n\t${res ? `content\n\tlocal - ${local}` : "empty"}\n------- BODY END ------`);
-                        resolve(salf.htmlData = res.toString())
-                    })
+                .on('response', (resp) => {
+                    switch(resp.headers['content-type']){
+                        case 'text/html; charset=windows-1251':
+                        local = 'win1251';
+                        break;
+                        default: local = 'utf8';
+                    }
+                })
+                .on('data', chunk=>chunks.push(chunk))
+                .on('end', () => {
+                    let res = local !=='utf8' ?
+                    iconv.decode(Buffer.concat(chunks), local) :
+                    Buffer.concat(chunks);
+                    debug(`----- BODY BEGIN -----\n\t${res ? `content\n\tlocal - ${local}` : "empty"}\n------- BODY END ------`);
+                    resolve(salf.htmlData = res.toString())
+                })
             })
         } else return false;
     }
@@ -76,56 +76,60 @@ function MHGrab(){
         return salf;
     }
     salf.getScore = function (score) {
-      // GET(url/pay)->POST({options: setOptions, url: 'bill/pay_rur'})->
-      // ParsceLink()
-      let opt = {
-        method: 'POST',
-        url: 'https://cp.masterhost.ru/pay',
-        followAllRedirects: true,
-        encoding: null,
-        form: {
-          sum: "11567",
-          lbill_id: '', //уникален для каждой организации
-          csrf_token: ''
-        }
-      };
-      // let doc = new jsPDF();
+        // GET(url/pay)->POST({options: setOptions, url: 'bill/pay_rur'})->
+        // ParsceLink()
+        let opt = {
+            method: 'POST',
+            url: 'https://cp.masterhost.ru/pay',
+            followAllRedirects: true,
+            encoding: null,
+            form: {
+                sum: "11567",
+                lbill_id: '', //уникален для каждой организации
+                csrf_token: ''
+            }
+        };
+        // let doc = new jsPDF();
 
-      salf.getRequest(opt).
-      then(() => {
-        opt.form.lbill_id = salf.getIdScope();
-        opt.form.csrf_token = salf.getCSRFKey();
-        opt.url = 'https://cp.masterhost.ru/bill/pay_rur';
-        return salf.getRequest(opt)
-      })
-      .then(() => {
-        let link = fetch(salf.htmlData, "a:contains('Счет для юридических лиц')", true).attr("href");
-
-        salf.getRequest({
-          url: link,
-          followAllRedirects: true,
-          encoding: null
+        salf.getRequest(opt).
+        then(() => {
+            opt.form.lbill_id = salf.getIdScope();
+            opt.form.csrf_token = salf.getCSRFKey();
+            opt.url = 'https://cp.masterhost.ru/bill/pay_rur';
+            return salf.getRequest(opt)
         })
         .then(() => {
-          // save result to file HTML
-          fs.writeFile('outHTML.html', self.htmlData);
-          // doc.text(fetch(salf.htmlData, "body", true), 15, 15);
-          // doc.save(__dirname+'/firstScore.pdf');
+            let link = fetch(salf.htmlData, "a:contains('Счет для юридических лиц')", true).attr("href");
+
+            salf.getRequest({
+                url: link,
+                followAllRedirects: true,
+                encoding: null
+            })
+            .then(() => {
+                // save result to file HTML
+                fs.writeFile('outHTML.html', self.htmlData);
+                // doc.text(fetch(salf.htmlData, "body", true), 15, 15);
+                // doc.save(__dirname+'/firstScore.pdf');
+            })
         })
-      })
 
     }
     salf._saveToFile = function(fileName, data) {
-      if(!data || !fileName){
-          return false;
-          }
-      return new Promise((resolve, reject) => {
-          fs.writeFile(fileName, data, (err) => {
-            if(err)
-              return reject(`Error write file! \n ${err}`);
-            resolve(`successfully save file ${fileName}`);
-          })
-      })
+        if(!data || !fileName){
+            return false;
+        }
+        return new Promise((resolve, reject) => {
+            let pdfOptions = {
+                format: 'A4'
+            }
+            pdf.create(data, pdfOptions)
+            .toFile(fileName,  (err, res) => {
+                if(err)
+                return reject(`Error write file! \n ${err}`);
+                resolve(`successfully save file ${res.filename}`);                
+            })
+        })
     }
 
     function fetch(data, patt, fullResult=false) {

@@ -6,7 +6,7 @@ const login = require('./data/login');
 let grab = new MHGrab();
 
 grab
-  .getRequest(options, login['gm'])
+  .getRequest(options, login['de'])
   .then(() => {
     grab.getScore('10001');
   })
