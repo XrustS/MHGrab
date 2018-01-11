@@ -63,27 +63,27 @@ describe('MHGrab' , function () {
             })
 
             describe('private function _saveToFile', function(){
-                let fileName, data;
+                let fileName, data, counter = 0;
 
                 beforeEach(() => {
-                    [fileName, data] = [`${__dirname}/TestPDF.pdf`, `<html><head><title>Test html file</title></head><body><h1>TEST PDF</h1></body></html>`];
+                    [fileName, data] = [`${__dirname}/../saveFiles/TestPDF${counter++}.pdf`, `<html><head><title>Test html file</title></head><body><h1>TEST PDF</h1></body></html>`];
                 })
-                afterEach(() => {
-                    fs.access(fileName, (err) => {
-                        if (err) {
-                            if (err.code === 'ENOENT') {
-                                //   console.error('myfile does not exist');
-                                return;
-                            }
-                        } else {
-                            fs.unlink(fileName, (err) => {
-                                if(err){
-                                    throw err;
-                                }
-                            })
-                        }
-                    })
-                })
+                // afterEach(() => {
+                //     fs.access(fileName, (err) => {
+                //         if (err) {
+                //             if (err.code === 'ENOENT') {
+                //                 //   console.error('myfile does not exist');
+                //                 return;
+                //             }
+                //         } else {
+                //             fs.unlink(fileName, (err) => {
+                //                 if(err){
+                //                     throw err;
+                //                 }
+                //             })
+                //         }
+                //     })
+                // })
                 it('should return false when data is empty', function(){
                     expect(grab._saveToFile()).to.be.false;
                     expect(grab._saveToFile(fileName)).to.be.false;
@@ -98,17 +98,25 @@ describe('MHGrab' , function () {
                         return expect(result).to.match(/TestPDF/);
                     }).catch( err => expect(err).to.match(/Error write file/) )
                 });
-                it('should return pdf file when set in input hrml file', (done) => {
+                it('should return pdf file when set in input html file', () => {
                     const fs = require('fs');
                     const path = require('path');
-
                     const source = path.resolve(`${__dirname}/../data/outHTML.html`);
-                    grab._saveToFile(fileName, fs.readFileSync(source, 'utf8'))
+
+                    let existFile = (fileName) => {
+                        return Promise((resolve, reject) => {
+                            fs.access(fileName, fs.constants.F_OK | fs.constants.R_OK, err => {
+                                err ? reject(false) : resolve(true);
+                            })
+                        })
+                    }
+
+                    return grab._saveToFile(fileName, fs.readFileSync(source, 'utf8'))
                         .then( resp => {
-                            console.log(resp);
-                            return expect(resp).to.be.true;
-                            done();
-                        }).catch( err => console.log(err))
-                });
+                            return  existFile(fileName)
+                            .then(ok => expect(ok).to.be.true)
+                            .catch( err => console.log(`Error ${fileName} not find!`))
+                        }).catch( err => console.log(`Error when save file: ${err}`))
+                })
             })
         })
