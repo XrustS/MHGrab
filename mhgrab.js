@@ -89,7 +89,6 @@ function MHGrab(){
                 csrf_token: ''
             }
         };
-        // let doc = new jsPDF();
 
         salf.getRequest(opt).
         then(() => {
@@ -108,7 +107,11 @@ function MHGrab(){
             })
             .then(() => {
                 // save result to file HTML
-                fs.writeFile('outHTML.html', self.htmlData);
+                fs.writeFile('outHTML.html', salf.htmlData, (err) => {
+                    if (err)
+                        return console.log(`Error save file, \n ${err}`);
+                    console.log(`File save successfully!`);
+                });
                 // doc.text(fetch(salf.htmlData, "body", true), 15, 15);
                 // doc.save(__dirname+'/firstScore.pdf');
             })
@@ -121,13 +124,13 @@ function MHGrab(){
         }
         return new Promise((resolve, reject) => {
             let pdfOptions = {
-                format: 'A4'
+                format: 'Letter'
             }
             pdf.create(data, pdfOptions)
             .toFile(fileName,  (err, res) => {
                 if(err)
                 return reject(`Error write file! \n ${err}`);
-                resolve(`successfully save file ${res.filename}`);                
+                resolve(`successfully save file ${res.filename}`);
             })
         })
     }

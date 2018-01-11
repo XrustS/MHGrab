@@ -29,18 +29,14 @@ describe('MHGrab' , function () {
         it('Promise if first argument object {uri:"https://ya.ru/"}', function () {
             expect(grab.getRequest({uri:'https://ya.ru/'})).to.be.instanceof(Promise)
         })
-        it.only('html page ya.ru if url: "https://ya.ru"', function() {
+        it('html page ya.ru if url: "https://ya.ru"', function() {
             let options = {
                 uri: 'https://ya.ru/',
                 method: 'GET'
             };
 
             return  grab.getRequest(options).then(resp => {
-                grab._saveToFile('./yandex.pdf', (err,res) => {
-                    if(err)  return console.log(err);
-                    return console.log(res);
-                });
-                expect(resp).to.match(/Яндекс/);
+                    return expect(resp).to.match(/Яндекс/);
             })
         })
     })
@@ -70,23 +66,23 @@ describe('MHGrab' , function () {
                 let fileName, data;
 
                 beforeEach(() => {
-                    [fileName, data] = [`${__dirname}/test1.pdf`, `<html><head><title>Test html file</title></head><body></body></html>`];
+                    [fileName, data] = [`${__dirname}/TestPDF.pdf`, `<html><head><title>Test html file</title></head><body><h1>TEST PDF</h1></body></html>`];
                 })
                 afterEach(() => {
-                    // fs.access(fileName, (err) => {
-                    //     if (err) {
-                    //         if (err.code === 'ENOENT') {
-                    //             //   console.error('myfile does not exist');
-                    //             return;
-                    //         }
-                    //     } else {
-                    //         fs.unlink(fileName, (err) => {
-                    //             if(err){
-                    //                 throw err;
-                    //             }
-                    //         })
-                    //     }
-                    // })
+                    fs.access(fileName, (err) => {
+                        if (err) {
+                            if (err.code === 'ENOENT') {
+                                //   console.error('myfile does not exist');
+                                return;
+                            }
+                        } else {
+                            fs.unlink(fileName, (err) => {
+                                if(err){
+                                    throw err;
+                                }
+                            })
+                        }
+                    })
                 })
                 it('should return false when data is empty', function(){
                     expect(grab._saveToFile()).to.be.false;
@@ -98,9 +94,21 @@ describe('MHGrab' , function () {
                 });
                 it('should return "successfully save file %fileName%"', () => {
                     return grab._saveToFile(fileName, data)
-                    .then(resp => {
-                        return expect(resp).to.be.eql(`successfully save file ${fileName}`);
-                    }).catch( err => expect(resp).to.be.include(`Error write file!`) )
+                    .then(result => {
+                        return expect(result).to.match(/TestPDF/);
+                    }).catch( err => expect(err).to.match(/Error write file/) )
+                });
+                it('should return pdf file when set in input hrml file', (done) => {
+                    const fs = require('fs');
+                    const path = require('path');
+
+                    const source = path.resolve(`${__dirname}/../data/outHTML.html`);
+                    grab._saveToFile(fileName, fs.readFileSync(source, 'utf8'))
+                        .then( resp => {
+                            console.log(resp);
+                            return expect(resp).to.be.true;
+                            done();
+                        }).catch( err => console.log(err))
                 });
             })
         })
