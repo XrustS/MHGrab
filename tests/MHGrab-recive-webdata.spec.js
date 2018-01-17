@@ -36,7 +36,7 @@ describe('MHGrab' , function () {
             };
 
             return  grab.getRequest(options).then(resp => {
-                    return expect(resp).to.match(/Яндекс/);
+                return expect(resp).to.match(/Яндекс/);
             })
         })
     })
@@ -61,9 +61,19 @@ describe('MHGrab' , function () {
                     })
                 })
             })
-
             describe('private function _saveToFile', function(){
+                this.timeout(12000);
                 let fileName, data, counter = 0;
+
+                const path = require('path');
+                // funcction test access file or dir
+                const existFile = (fileName) => {
+                    return new Promise((resolve, reject) => {
+                        fs.access(fileName, fs.constants.F_OK | fs.constants.R_OK, err => {
+                            err ? reject(false) : resolve(true);
+                        })
+                    })
+                }
 
                 beforeEach(() => {
                     [fileName, data] = [`${__dirname}/../saveFiles/TestPDF${counter++}.pdf`, `<html><head><title>Test html file</title></head><body><h1>TEST PDF</h1></body></html>`];
@@ -84,10 +94,10 @@ describe('MHGrab' , function () {
                 //         }
                 //     })
                 // })
-                it('should return false when data is empty', function(){
-                    expect(grab._saveToFile()).to.be.false;
-                    expect(grab._saveToFile(fileName)).to.be.false;
-                    expect(grab._saveToFile(null, data)).to.be.false;
+                it('should return false when data is empty', () => {
+                    return grab
+                    ._saveToFile()
+                    .catch( res => expect(res).to.be.false)
                 })
                 it('should return Promise when data save to file', () => {
                     return expect(grab._saveToFile(fileName, data)).to.be.instanceof(Promise);
@@ -99,24 +109,24 @@ describe('MHGrab' , function () {
                     }).catch( err => expect(err).to.match(/Error write file/) )
                 });
                 it('should return pdf file when set in input html file', () => {
-                    const fs = require('fs');
-                    const path = require('path');
                     const source = path.resolve(`${__dirname}/../data/outHTML.html`);
 
-                    let existFile = (fileName) => {
-                        return Promise((resolve, reject) => {
-                            fs.access(fileName, fs.constants.F_OK | fs.constants.R_OK, err => {
-                                err ? reject(false) : resolve(true);
-                            })
-                        })
-                    }
-
                     return grab._saveToFile(fileName, fs.readFileSync(source, 'utf8'))
-                        .then( resp => {
-                            return  existFile(fileName)
-                            .then(ok => expect(ok).to.be.true)
-                            .catch( err => console.log(`Error ${fileName} not find!`))
-                        }).catch( err => console.log(`Error when save file: ${err}`))
+                    .then( resp => {
+                        return  existFile(fileName)
+                        .then(ok => expect(ok).to.be.true)
+                        .catch( err => console.log(`Error ${fileName} not find!`))
+                    }).catch( err => console.log(`Error when save file: ${err}`))
+                })
+                it(`should save pdf file after get new score`, () => {
+
+                    return grab
+                    .getRequest(opt, login['de'])
+                    .then(() => grab.getScore('1000'))
+                    .then(res => res.toPDF(fileName))
+                    .then(() => existFile(fileName))
+                    .then(ok => expect(ok).to.true)
+                    .catch( err => expect(err).to.be.false)
                 })
             })
         })
